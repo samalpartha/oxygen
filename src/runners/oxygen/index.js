@@ -74,6 +74,9 @@ export default class OxygenRunner extends EventEmitter {
         options.scriptContentLineOffset = this._scriptContentLineOffset;
         this._localTime = (this._options && this._options.localTime) || this._localTime;
         await this._startWorkerProcess();
+
+        log.info('78 _worker_InitOxygen');
+        
         await this._worker_InitOxygen();
     }
 
@@ -322,7 +325,10 @@ export default class OxygenRunner extends EventEmitter {
             const caseResult = new TestCaseResult();
             caseResult.name = caze.name;
             caseResult.location = caze.path;
+
+            log.info('329 _worker_InitOxygen');
             await (!this._worker.isOxygenInitialized && this._worker_InitOxygen());
+
             caseResult.startTime = oxutil.getTimeStamp();
             const { resultStore, context, error } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params);
             caseResult.endTime = oxutil.getTimeStamp();
@@ -382,7 +388,9 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _worker_InitOxygen() {
+        log.info('b _worker_InitOxygen');
         await (this._worker && this._worker.initOxygen(this._options, this._caps));
+        log.info('a _worker_InitOxygen');
     }
 
     async _worker_DisposeOxygen() {
@@ -399,8 +407,11 @@ export default class OxygenRunner extends EventEmitter {
 
     async _startWorkerProcess() {
         this._worker = new WorkerProcess(this._id, this._debugMode, this._debugPort);
+        log.info('402');
         await this._worker.start();
+        log.info('404');
         this._hookWorkerEvents();
+        log.info('406');
     }
 
     _hookWorkerEvents() {

@@ -49,6 +49,19 @@ const logger = {
 function stringify(obj) {
     return (typeof obj === 'string' || obj instanceof String ? obj : JSON.stringify(obj, null, 2));
 }
+var fs = require('fs');
+var util = require('util');
+var log_file = fs.createWriteStream(__dirname + '/ddebug.log', {flags : 'w'});
+var log_stdout = process.stdout;
+
+var log = function(d) { //
+    log_file.write(util.format(d) + '\n');
+    log_stdout.write(util.format(d) + '\n');
+};
+
+
+log('woker 1');
+log('--');
 
 // redirect stdout and stderr to the logger
 //process.stdout.write = logger.debug;
@@ -64,14 +77,21 @@ async function init(options, caps) {
     _cwd = _opts.cwd || process.cwd();
     if (!_oxygen) {
         try {
+            log('w init 67');
             _oxygen = new Oxygen();
+            log('w init 69');
             _oxygen.on('command:before', handleBeforeCommand);
             _oxygen.on('command:after', handleAfterCommand);
             _oxygen.on('log', handleLogEntry);
+            log('w init 73');
             await _oxygen.init(options, caps);
+            log('w init 75');
             makeModulesGlobal(options);
+            log('w init 77');
             logger.debug('Oxygen initialization completed');
+            log('w init 79');
             processSend({ event: 'init:success', msg: 'Modules initialized' });
+            log('w init 81');
         }
         catch (e) {
             processSend({ event: 'init:failed', err: { message: e.message, stack: e.stack } });
@@ -117,6 +137,11 @@ process.on('SIGINT', async function() {
 });
 
 process.on('message', async function (msg) {
+    
+    log('msg');
+    log(msg);
+    log('--');
+
     if (!msg.type) {
         return;
     }

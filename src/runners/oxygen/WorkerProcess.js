@@ -23,20 +23,18 @@ export default class WorkerProcess extends EventEmitter {
         this._stoppedByUser = true;
         this._pid = pid;
         this._childProc = null;
-        this._debugMode = debugMode;
-        this._debugPort = debugPort;
+        // this._debugMode = debugMode;
+        // this._debugPort = debugPort;
         // promises
         this._whenOxygenInitialized = null;
         this._whenOxygenDisposed = null;
         this._whenModulesDisposed = null;
-    }
-    async start() {
+        
         const env = Object.assign(process.env, {
             OX_WORKER: true,
             DEBUG: !isNaN(this._debugPort)
         });
-
-        log.info(`Starting worker process ${this._pid}.`);
+        
         let forkOpts = { 
             cwd: process.cwd(), 
             env,
@@ -49,8 +47,19 @@ export default class WorkerProcess extends EventEmitter {
             forkOpts.execArgv = Object.assign(forkOpts.execArgv, ['--inspect-brk=' + this._debugPort]);
         }      
         // fork worker.js
+        log.info('54');
         this._childProc = fork(path.join(__dirname, 'worker.js'), forkOpts);
+
+    }
+    async start() {
+
+        log.info(`Starting worker process ${this._pid}.`);
+        log.info(`this._debugMode ${this._debugMode}.`);
+        log.info(`this._debugPort ${this._debugPort}.`);
+        
+        log.info('56');
         this._hookChildProcEvents();
+        log.info('58');
         // if we are in debug mode, initialize debugger and only then start modules 'init'
         if (this._debugMode) {
             // delay debugger initialization, as debugger port might not be open yet right after the process fork
@@ -73,12 +82,21 @@ export default class WorkerProcess extends EventEmitter {
     }
 
     async initOxygen(options, caps = {}) {
+        log.info('initOxygen');
         if (!this._isOxygenInitialized) {
-            this._childProc && this._childProc.send({
-                type: 'init',
-                options: options,
-                caps: caps,
-            });
+            
+            log.info('initOxygen 84');
+            log.info('this._childProc');
+            log.info(!!this._childProc);
+
+            // this._childProc && this._childProc.send({
+            //     type: 'init',
+            //     options: options,
+            //     caps: caps,
+            // });
+            
+            log.info('initOxygen 92');
+
             this._whenOxygenInitialized = defer();
             return this._whenOxygenInitialized.promise;
         }        
